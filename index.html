@@ -3,22 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ASPRON Capsule UI v1</title>
-  <meta name="description" content="ASPRON dissolvable application proof demo: controlled input, redaction, approval, evidence, dissolve." />
+  <title>ASPRON Safe Intake Capsule</title>
+  <meta name="description" content="ASPRON Safe Intake Capsule prototype: policy-gated input, blocked raw agent access, approval, evidence, dissolve." />
   <style>
     :root {
-      --bg: #050608;
-      --panel: #101318;
-      --panel-2: #151a22;
-      --text: #f4f7fb;
-      --muted: #98a2b3;
-      --line: #2a3340;
-      --good: #70e000;
-      --warn: #ffd166;
-      --bad: #ff4d6d;
-      --accent: #8ecae6;
-      --disabled: #3a414d;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --bg: #f4efe5;
+      --bg-deep: #15110c;
+      --panel: #fffaf1;
+      --panel-2: #eee3d0;
+      --ink: #1b1712;
+      --muted: #6f6254;
+      --line: #d7c7ae;
+      --bronze: #a86f35;
+      --bronze-dark: #70461f;
+      --good: #285f3a;
+      --warn: #9b651d;
+      --bad: #9d2f2f;
+      --cream: #fff8eb;
+      --disabled: #cfc2ac;
+      --shadow: 0 22px 70px rgba(43, 30, 14, 0.16);
     }
 
     * { box-sizing: border-box; }
@@ -26,60 +29,101 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
       background:
-        radial-gradient(circle at 20% 20%, rgba(142, 202, 230, 0.08), transparent 30%),
-        radial-gradient(circle at 80% 0%, rgba(112, 224, 0, 0.05), transparent 24%),
-        var(--bg);
-      color: var(--text);
+        radial-gradient(circle at 12% 8%, rgba(168, 111, 53, 0.16), transparent 28%),
+        radial-gradient(circle at 90% 4%, rgba(40, 95, 58, 0.10), transparent 22%),
+        linear-gradient(180deg, #fbf4e8 0%, var(--bg) 58%, #ede2d0 100%);
     }
 
     main {
-      width: min(1120px, 100%);
+      width: min(1180px, 100%);
       margin: 0 auto;
       padding: 28px 16px 72px;
     }
 
     .hero {
       display: grid;
-      gap: 12px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
       margin-bottom: 18px;
     }
 
     .eyebrow {
-      color: var(--good);
-      letter-spacing: 0.18em;
+      color: var(--bronze-dark);
+      letter-spacing: 0.16em;
       text-transform: uppercase;
       font-size: 0.72rem;
-      font-weight: 800;
+      font-weight: 900;
     }
 
     h1 {
-      margin: 0;
-      font-size: clamp(2rem, 8vw, 5rem);
-      line-height: 0.94;
-      letter-spacing: -0.08em;
+      margin: 6px 0 8px;
+      max-width: 900px;
+      font-size: clamp(2.15rem, 6.5vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.075em;
     }
 
     .hero p {
       margin: 0;
       color: var(--muted);
-      max-width: 760px;
+      max-width: 820px;
       font-size: 1rem;
-      line-height: 1.6;
+      line-height: 1.58;
+    }
+
+    .bunny-mark {
+      white-space: pre;
+      font: 0.8rem/1.05 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--bronze-dark);
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 241, 0.72);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .proof-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .proof-step {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 241, 0.72);
+      border-radius: 18px;
+      padding: 12px;
+      min-height: 82px;
+    }
+
+    .proof-step strong {
+      display: block;
+      font-size: 0.82rem;
+      margin-bottom: 4px;
+    }
+
+    .proof-step span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.08fr 0.92fr;
       gap: 16px;
       align-items: start;
     }
 
     .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)), var(--panel);
+      background: linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.28)), var(--panel);
       border: 1px solid var(--line);
-      border-radius: 22px;
+      border-radius: 24px;
       box-shadow: var(--shadow);
       overflow: hidden;
     }
@@ -91,44 +135,52 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      background: rgba(238, 227, 208, 0.46);
     }
 
     .card h2 {
       margin: 0;
-      font-size: 0.95rem;
-      letter-spacing: -0.02em;
+      font-size: 0.98rem;
+      letter-spacing: -0.025em;
     }
 
     .pill {
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 5px 9px;
+      padding: 6px 10px;
       color: var(--muted);
+      background: rgba(255, 248, 235, 0.76);
       font-size: 0.72rem;
+      font-weight: 850;
       white-space: nowrap;
     }
+
+    .pill.good { color: var(--good); border-color: rgba(40, 95, 58, 0.35); }
+    .pill.bad { color: var(--bad); border-color: rgba(157, 47, 47, 0.35); }
+    .pill.warn { color: var(--warn); border-color: rgba(155, 101, 29, 0.35); }
 
     .content { padding: 16px; }
 
     textarea, pre {
       width: 100%;
-      min-height: 210px;
+      min-height: 218px;
       resize: vertical;
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid var(--line);
-      background: #07090c;
-      color: var(--text);
+      background: #fffdf8;
+      color: var(--ink);
       padding: 14px;
-      font: 0.92rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font: 0.9rem/1.52 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       outline: none;
     }
 
-    textarea:focus { border-color: var(--accent); }
+    textarea:focus { border-color: var(--bronze); box-shadow: 0 0 0 4px rgba(168, 111, 53, 0.12); }
 
     pre {
       white-space: pre-wrap;
       margin: 0;
-      color: #d9e2ec;
+      color: #2a2118;
+      overflow: auto;
     }
 
     .button-grid {
@@ -140,29 +192,31 @@
 
     button {
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 16px;
       background: var(--panel-2);
-      color: var(--text);
+      color: var(--ink);
       padding: 12px 12px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
-      transition: transform 140ms ease, border-color 140ms ease, opacity 140ms ease;
+      transition: transform 140ms ease, border-color 140ms ease, opacity 140ms ease, background 140ms ease;
     }
 
     button:hover:not(:disabled) {
       transform: translateY(-1px);
-      border-color: var(--accent);
+      border-color: var(--bronze);
+      background: #f5ead7;
     }
 
     button:disabled {
       cursor: not-allowed;
-      color: var(--muted);
+      color: #8f806b;
       background: var(--disabled);
-      opacity: 0.55;
+      opacity: 0.58;
     }
 
-    .primary { border-color: rgba(112, 224, 0, 0.45); }
-    .danger { border-color: rgba(255, 77, 109, 0.5); }
+    .primary { border-color: rgba(40, 95, 58, 0.45); }
+    .danger { border-color: rgba(157, 47, 47, 0.5); }
+    .agent { border-color: rgba(155, 101, 29, 0.5); }
 
     .status-list {
       display: grid;
@@ -178,8 +232,8 @@
       justify-content: space-between;
       gap: 12px;
       padding: 11px 12px;
-      border-radius: 14px;
-      background: #090c11;
+      border-radius: 15px;
+      background: #fffdf8;
       border: 1px solid var(--line);
       color: var(--muted);
       font-size: 0.88rem;
@@ -193,42 +247,52 @@
       flex: 0 0 auto;
     }
 
-    .done .dot { background: var(--good); box-shadow: 0 0 16px rgba(112,224,0,0.7); }
+    .done .dot { background: var(--good); box-shadow: 0 0 16px rgba(40, 95, 58, 0.4); }
     .blocked .dot { background: var(--bad); }
     .active .dot { background: var(--warn); }
 
     .audit {
       display: grid;
       gap: 8px;
-      max-height: 280px;
+      max-height: 310px;
       overflow: auto;
       padding-right: 4px;
     }
 
     .audit-entry {
-      border-left: 3px solid var(--accent);
-      background: #080b10;
+      border-left: 4px solid var(--bronze);
+      background: #fffdf8;
       padding: 9px 10px;
-      border-radius: 10px;
+      border-radius: 12px;
       color: var(--muted);
-      font: 0.78rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font: 0.76rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
 
-    .receipt {
-      display: none;
-      margin-top: 12px;
-    }
+    .audit-entry.blocked { border-left-color: var(--bad); color: #5a2929; }
+    .audit-entry.good { border-left-color: var(--good); color: #203d2a; }
 
+    .receipt { display: none; margin-top: 12px; }
     .receipt.visible { display: block; }
+
+    .footer-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.5;
+    }
 
     .rabbit {
       display: none;
       position: fixed;
       right: 18px;
       bottom: 18px;
-      color: var(--good);
+      color: var(--bronze-dark);
+      background: rgba(255, 248, 235, 0.88);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 14px;
       font: 0.85rem/1.05 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      text-shadow: 0 0 18px rgba(112,224,0,0.6);
+      box-shadow: var(--shadow);
       user-select: none;
       white-space: pre;
     }
@@ -242,63 +306,81 @@
 
     @keyframes dissolve {
       0% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-      100% { opacity: 0.06; transform: translateY(-14px) scale(0.985); filter: blur(8px); }
+      100% { opacity: 0.08; transform: translateY(-14px) scale(0.985); filter: blur(8px); }
     }
 
-    .warning {
-      color: var(--warn);
-      font-size: 0.85rem;
-      line-height: 1.5;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 820px) {
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .proof-strip { grid-template-columns: 1fr 1fr; }
       .grid { grid-template-columns: 1fr; }
-      .button-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
       main { padding-top: 18px; }
+      .proof-strip { grid-template-columns: 1fr; }
+      .button-grid { grid-template-columns: 1fr; }
+      .bunny-mark { width: fit-content; }
     }
   </style>
 </head>
 <body>
   <main>
     <section class="hero">
-      <div class="eyebrow">ASPRON Capsule UI v1</div>
-      <h1>Dissolve the interface. Preserve the proof.</h1>
-      <p>
-        This browser-only demo shows the ASPRON lifecycle: raw text enters a controlled capsule, risk is detected,
-        redaction is reviewed, approved content becomes AI-visible, evidence is exported, then the working interface dissolves.
-      </p>
+      <div>
+        <div class="eyebrow">ASPRON Safe Intake Capsule</div>
+        <h1>Private data controlled before agents can touch it.</h1>
+        <p>
+          A browser-only prototype for a policy-gated intake capsule: detect risk, block raw agent access, approve a redacted version, show the exact AI-visible payload, retain evidence, then dissolve the working interface.
+        </p>
+      </div>
+      <div class="bunny-mark" aria-hidden="true">((\
+( -.-)
+o_(")(")</div>
+    </section>
+
+    <section class="proof-strip" aria-label="Prototype proof points">
+      <div class="proof-step"><strong>1. Risk enters</strong><span>Mock personal data enters a temporary capsule.</span></div>
+      <div class="proof-step"><strong>2. Raw access blocked</strong><span>A simulated agent request is refused before approval.</span></div>
+      <div class="proof-step"><strong>3. Safe copy approved</strong><span>Only a redacted working copy becomes AI-visible.</span></div>
+      <div class="proof-step"><strong>4. Evidence survives</strong><span>The capability dissolves; the receipt remains.</span></div>
     </section>
 
     <section class="grid capsule-shell" aria-label="ASPRON workflow">
       <div class="card">
         <header>
           <h2>Capsule workspace</h2>
-          <span class="pill" id="capsuleState">READY</span>
+          <span class="pill" id="capsuleState">IDLE</span>
         </header>
         <div class="content">
-          <label for="rawText" class="pill">Raw input</label>
-          <textarea id="rawText" placeholder="Paste text here. Try: Contact Jane Smith at jane@example.com or 0400 123 456 about invoice ABN 12 345 678 901."></textarea>
+          <label for="rawText" class="pill">Fake sensitive intake record</label>
+          <textarea id="rawText" spellcheck="false">Name: Jordan Ellis
+DOB: 14/03/1988
+Phone: 0400 123 456
+Email: jordan.ellis@example.test
+Address: 12 Sample Street, Adelaide SA
+Medicare: 1234 56789 1
+Private reason: I need help with a tenancy and payment dispute involving a previous employer and rent arrears.</textarea>
 
           <div class="button-grid">
             <button id="detectBtn" class="primary">1. Detect risk</button>
-            <button id="redactBtn">2. Generate redaction</button>
-            <button id="approveBtn">3. Approve redacted input</button>
-            <button id="summaryBtn">4. Generate AI-visible summary</button>
-            <button id="receiptBtn">5. Export evidence receipt</button>
-            <button id="dissolveBtn" class="danger">6. Dissolve capsule</button>
+            <button id="agentBtn" class="agent">2. Simulate raw agent access</button>
+            <button id="redactBtn">3. Create redacted copy</button>
+            <button id="approveBtn">4. Approve safe version</button>
+            <button id="summaryBtn">5. Show AI-visible payload</button>
+            <button id="receiptBtn">6. Generate evidence receipt</button>
+            <button id="dissolveBtn" class="danger">7. Dissolve capsule</button>
           </div>
 
-          <p class="warning">
-            Demo boundary: this runs locally in your browser. It demonstrates workflow controls only. It is not production-grade privacy, security, or legal compliance.
+          <p class="footer-note">
+            Demo boundary: local front-end prototype only. It shows workflow control and evidence semantics. It is not production-grade security, privacy, compliance, storage, or true data destruction.
           </p>
         </div>
       </div>
 
       <div class="card">
         <header>
-          <h2>Workflow gates</h2>
-          <span class="pill">Fail closed</span>
+          <h2>Policy gates</h2>
+          <span class="pill bad">Fail closed</span>
         </header>
         <div class="content">
           <ul class="status-list" id="statusList"></ul>
@@ -307,8 +389,8 @@
 
       <div class="card">
         <header>
-          <h2>Redacted / AI-visible output</h2>
-          <span class="pill">No raw text after approval</span>
+          <h2>AI-visible path</h2>
+          <span class="pill good">Approved copy only</span>
         </header>
         <div class="content">
           <pre id="output">Waiting for controlled action.</pre>
@@ -319,7 +401,7 @@
       <div class="card">
         <header>
           <h2>Evidence trail</h2>
-          <span class="pill">Client-visible proof</span>
+          <span class="pill warn">Raw values excluded from receipt</span>
         </header>
         <div class="content">
           <div class="audit" id="auditLog"></div>
@@ -328,24 +410,34 @@
     </section>
   </main>
 
-  <div class="rabbit" id="rabbit" aria-hidden="true">(\(\
+  <div class="rabbit" id="rabbit" aria-hidden="true">Capsule dissolved.
+Evidence retained.
+
+((\
 ( -.-)
 o_(")(") cool.</div>
 
   <script>
+    const CAPSULE_ID = "ASPRON-DEMO-001";
+    const POLICY_VERSION = "safe-intake-policy-v0.1";
+
     const state = {
+      current: "IDLE",
       riskDetected: false,
+      rawAccessBlocked: false,
       redactedText: "",
       approved: false,
-      summary: "",
+      aiVisiblePayload: "",
       receipt: "",
       dissolved: false,
-      risks: []
+      risks: [],
+      auditEvents: []
     };
 
     const els = {
       rawText: document.getElementById("rawText"),
       detectBtn: document.getElementById("detectBtn"),
+      agentBtn: document.getElementById("agentBtn"),
       redactBtn: document.getElementById("redactBtn"),
       approveBtn: document.getElementById("approveBtn"),
       summaryBtn: document.getElementById("summaryBtn"),
@@ -360,20 +452,37 @@ o_(")(") cool.</div>
     };
 
     const riskPatterns = [
-      { label: "email", pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi, token: "[EMAIL_001]" },
-      { label: "phone", pattern: /\b(?:\+?61|0)\s?4\d{2}\s?\d{3}\s?\d{3}\b/g, token: "[PHONE_001]" },
-      { label: "ABN-like number", pattern: /\b\d{2}\s?\d{3}\s?\d{3}\s?\d{3}\b/g, token: "[ABN_001]" },
-      { label: "possible person name", pattern: /\b[A-Z][a-z]+\s[A-Z][a-z]+\b/g, token: "[PERSON_001]" }
+      { label: "name", pattern: /\bName:\s*[^\n]+/gi, token: "Name: [REDACTED_NAME]" },
+      { label: "date_of_birth", pattern: /\bDOB:\s*\d{1,2}\/\d{1,2}\/\d{4}\b/gi, token: "DOB: [REDACTED_DOB]" },
+      { label: "phone", pattern: /\b(?:\+?61|0)\s?4\d{2}\s?\d{3}\s?\d{3}\b/g, token: "[REDACTED_PHONE]" },
+      { label: "email", pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.(?:test|example|com|net|org|au)\b/gi, token: "[REDACTED_EMAIL]" },
+      { label: "address", pattern: /\bAddress:\s*[^\n]+/gi, token: "Address: [REDACTED_ADDRESS]" },
+      { label: "medicare_number", pattern: /\bMedicare:\s*\d{4}\s?\d{5}\s?\d\b/gi, token: "Medicare: [REDACTED_MEDICARE]" },
+      { label: "private_reason", pattern: /\bPrivate reason:\s*[^\n]+/gi, token: "Private reason: [REDACTED_PRIVATE_REASON_SUMMARY_REQUIRED]" }
     ];
 
     function now() {
       return new Date().toISOString();
     }
 
-    function addAudit(event, detail) {
+    function setState(next) {
+      state.current = next;
+      els.capsuleState.textContent = next;
+    }
+
+    function addAudit(event, detail, level = "info") {
+      const record = {
+        timestamp: now(),
+        event,
+        detail,
+        level,
+        raw_values_recorded: false
+      };
+      state.auditEvents.push(record);
+
       const row = document.createElement("div");
-      row.className = "audit-entry";
-      row.textContent = `${now()} | ${event} | ${detail}`;
+      row.className = `audit-entry ${level === "blocked" ? "blocked" : level === "good" ? "good" : ""}`;
+      row.textContent = `${record.timestamp} | ${event} | ${detail}`;
       els.auditLog.prepend(row);
     }
 
@@ -381,7 +490,7 @@ o_(")(") cool.</div>
       const found = [];
       for (const item of riskPatterns) {
         const matches = text.match(item.pattern) || [];
-        if (matches.length) found.push({ label: item.label, count: matches.length });
+        if (matches.length) found.push({ field: item.label, count: matches.length, action: "redact_or_review" });
       }
       return found;
     }
@@ -394,31 +503,47 @@ o_(")(") cool.</div>
       return redacted;
     }
 
+    function resetDerivedState() {
+      state.current = "IDLE";
+      state.riskDetected = false;
+      state.rawAccessBlocked = false;
+      state.redactedText = "";
+      state.approved = false;
+      state.aiVisiblePayload = "";
+      state.receipt = "";
+      state.risks = [];
+      els.output.textContent = "Waiting for controlled action.";
+      els.receipt.classList.remove("visible");
+      els.receipt.textContent = "";
+    }
+
     function updateButtons() {
       const hasRaw = els.rawText.value.trim().length > 0;
       els.detectBtn.disabled = !hasRaw || state.dissolved;
+      els.agentBtn.disabled = !hasRaw || state.dissolved;
       els.redactBtn.disabled = !state.riskDetected || state.dissolved;
       els.approveBtn.disabled = !state.redactedText || state.dissolved;
       els.summaryBtn.disabled = !state.approved || state.dissolved;
-      els.receiptBtn.disabled = !state.summary || state.dissolved;
-      els.dissolveBtn.disabled = (!state.receipt && !state.summary) || state.dissolved;
+      els.receiptBtn.disabled = !state.aiVisiblePayload || state.dissolved;
+      els.dissolveBtn.disabled = !state.receipt || state.dissolved;
       els.rawText.disabled = state.dissolved;
-      els.capsuleState.textContent = state.dissolved ? "DISSOLVED" : state.approved ? "APPROVED" : state.riskDetected ? "RISK DETECTED" : "READY";
+      els.capsuleState.textContent = state.dissolved ? "DISSOLVED" : state.current;
     }
 
     function updateStatus() {
       const items = [
-        ["Raw text present", els.rawText.value.trim().length > 0],
-        ["Risk detection complete", state.riskDetected],
-        ["Redacted candidate generated", Boolean(state.redactedText)],
-        ["Human approval recorded", state.approved],
-        ["AI-visible summary generated", Boolean(state.summary)],
-        ["Evidence receipt exported", Boolean(state.receipt)],
-        ["Capsule dissolved", state.dissolved]
+        ["Mock sensitive intake present", els.rawText.value.trim().length > 0, "done"],
+        ["Risk fields detected", state.riskDetected, "done"],
+        ["Raw agent access blocked", state.rawAccessBlocked, "blocked"],
+        ["Redacted working copy created", Boolean(state.redactedText), "done"],
+        ["Human approval recorded", state.approved, "done"],
+        ["Exact AI-visible payload shown", Boolean(state.aiVisiblePayload), "done"],
+        ["Evidence receipt generated", Boolean(state.receipt), "done"],
+        ["Working capability dissolved", state.dissolved, "done"]
       ];
 
-      els.statusList.innerHTML = items.map(([label, done]) => `
-        <li class="status-item ${done ? "done" : ""}">
+      els.statusList.innerHTML = items.map(([label, done, cls]) => `
+        <li class="status-item ${done ? cls : ""}">
           <span>${label}</span><span class="dot"></span>
         </li>
       `).join("");
@@ -431,14 +556,8 @@ o_(")(") cool.</div>
 
     els.rawText.addEventListener("input", () => {
       if (!state.dissolved) {
-        state.riskDetected = false;
-        state.redactedText = "";
-        state.approved = false;
-        state.summary = "";
-        state.receipt = "";
-        state.risks = [];
-        els.output.textContent = "Waiting for controlled action.";
-        els.receipt.classList.remove("visible");
+        resetDerivedState();
+        addAudit("input.changed", "derived workflow state reset; raw values not written to audit");
         render();
       }
     });
@@ -446,65 +565,82 @@ o_(")(") cool.</div>
     els.detectBtn.addEventListener("click", () => {
       state.risks = detectRisks(els.rawText.value);
       state.riskDetected = true;
+      setState("RISK_DETECTED");
       const detail = state.risks.length
-        ? state.risks.map(r => `${r.label}:${r.count}`).join(", ")
-        : "no configured risks found";
-      els.output.textContent = `Risk detection complete.\n${detail}\n\nRaw input is still blocked from AI-visible output.`;
+        ? state.risks.map(r => `${r.field}:${r.count}`).join(", ")
+        : "no configured risk fields found";
+      els.output.textContent = `Risk detection complete.\n\nDetected fields:\n${detail}\n\nRaw input remains blocked from the AI-visible path.`;
       addAudit("risk.detected", detail);
+      render();
+    });
+
+    els.agentBtn.addEventListener("click", () => {
+      state.rawAccessBlocked = true;
+      setState("RAW_AGENT_ACCESS_BLOCKED");
+      els.output.textContent = "BLOCKED BY POLICY GATE\n\nA simulated agent attempted to access raw intake data before approval.\n\nResult: denied. Raw unreviewed content cannot enter AI processing, retrieval, summarisation, export, indexing, or hosted model calls.";
+      addAudit("agent.raw_access_attempt_blocked", "raw access denied before approval", "blocked");
       render();
     });
 
     els.redactBtn.addEventListener("click", () => {
       state.redactedText = redact(els.rawText.value);
-      els.output.textContent = state.redactedText;
-      addAudit("redaction.generated", "candidate redacted text created");
+      setState("REDACTED_COPY_CREATED");
+      els.output.textContent = `REDACTED WORKING COPY\n\n${state.redactedText}\n\nStatus: pending human approval.`;
+      addAudit("redaction.generated", "redacted working copy created; raw values excluded from audit", "good");
       render();
     });
 
     els.approveBtn.addEventListener("click", () => {
       state.approved = true;
-      els.output.textContent = `APPROVED AI-VISIBLE INPUT:\n\n${state.redactedText}`;
-      addAudit("approval.recorded", "redacted input approved for AI-visible use");
+      setState("APPROVED_FOR_AI");
+      els.output.textContent = `APPROVED SAFE VERSION\n\n${state.redactedText}\n\nApproval recorded. This is now eligible for the AI-visible path.`;
+      addAudit("approval.recorded", "human review approved redacted copy for AI-visible use", "good");
       render();
     });
 
     els.summaryBtn.addEventListener("click", () => {
-      state.summary = `Summary generated from approved redacted input only.\n\n${state.redactedText.slice(0, 420)}${state.redactedText.length > 420 ? "..." : ""}`;
-      els.output.textContent = state.summary;
-      addAudit("summary.generated", "summary created from approved redacted text only");
+      state.aiVisiblePayload = state.redactedText;
+      setState("AI_VISIBLE_PAYLOAD_READY");
+      els.output.textContent = `EXACT AI-VISIBLE PAYLOAD\n\n${state.aiVisiblePayload}\n\nSimulated result: summary would be generated from the approved redacted copy only.`;
+      addAudit("ai_visible_payload.recorded", "exact approved redacted payload displayed", "good");
       render();
     });
 
     els.receiptBtn.addEventListener("click", () => {
       state.receipt = JSON.stringify({
-        capsule: "ASPRON-CAPSULE-UI-V1",
+        capsule_id: CAPSULE_ID,
+        policy_version: POLICY_VERSION,
         exported_at: now(),
-        raw_input_blocked: true,
-        approved_redacted_input_used: state.approved,
-        detected_risks: state.risks,
-        controls: [
-          "detect risk requires raw text",
-          "redaction requires risk detection",
-          "summary requires approval",
-          "receipt requires summary",
-          "dissolve disables workflow buttons"
-        ]
+        prototype_boundary: "front-end simulation only; not production security or compliance",
+        input_type: "mock_sensitive_intake",
+        detected_risk_fields: state.risks.map(r => r.field),
+        raw_agent_access_attempt: state.rawAccessBlocked ? "blocked" : "not_attempted",
+        raw_values_retained_in_receipt: false,
+        human_review: state.approved ? "approved" : "not_approved",
+        ai_visible_payload_type: "approved_redacted_copy_only",
+        ai_visible_payload: state.aiVisiblePayload,
+        capsule_state: "audit_ready",
+        evidence_retained: true,
+        events: state.auditEvents
       }, null, 2);
+      setState("AUDIT_READY");
       els.receipt.textContent = state.receipt;
       els.receipt.classList.add("visible");
-      addAudit("receipt.exported", "evidence receipt generated");
+      addAudit("receipt.generated", "evidence receipt generated without raw sensitive values", "good");
       render();
     });
 
     els.dissolveBtn.addEventListener("click", () => {
       state.dissolved = true;
+      setState("DISSOLVED");
       document.body.classList.add("dissolved");
       els.rabbit.classList.add("visible");
-      addAudit("capsule.dissolved", "working interface disabled; evidence preserved");
+      els.output.textContent = "CAPSULE DISSOLVED\n\nWorking capability revoked. Sensitive working view removed. Evidence receipt retained below.";
+      addAudit("capsule.dissolved", "working controls disabled; evidence retained", "good");
       render();
     });
 
-    addAudit("capsule.created", "browser-only demo capsule initialised");
+    addAudit("capsule.created", "ASPRON safe intake prototype initialised; fake data only");
     render();
   </script>
 </body>
