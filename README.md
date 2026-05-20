@@ -33,7 +33,56 @@ Core rule:
 
 Open `index.html` in any modern browser.
 
-No install. No backend. No external dependencies.
+No install. No backend. No external dependencies are required for the browser demo.
+
+## Run tests
+
+Run the dependency-free lifecycle and fail-closed test runner with:
+
+```bash
+node tests/lifecycle-fail-closed.test.js
+```
+
+The test suite checks that:
+
+- raw agent access fails closed
+- redaction candidate is not automatically AI-visible
+- approval is required before AI-visible output
+- evidence receipt does not intentionally preserve raw sensitive values
+- capsule lifecycle reaches the dissolved state
+
+GitHub Actions also runs this command through `.github/workflows/test.yml` on pushes and pull requests to `main`.
+
+## Documentation map
+
+| Area | File |
+|---|---|
+| Demo walkthrough | [`docs/demo/demo-script.md`](docs/demo/demo-script.md) |
+| Demo checklist | [`docs/demo/demo-checklist.md`](docs/demo/demo-checklist.md) |
+| Demo boundary and claims | [`docs/product-spec/demo-boundary-and-claims.md`](docs/product-spec/demo-boundary-and-claims.md) |
+| Capsule lifecycle | [`docs/product-spec/capsule-lifecycle.md`](docs/product-spec/capsule-lifecycle.md) |
+| Evidence receipt schema | [`docs/product-spec/evidence-receipt-schema.md`](docs/product-spec/evidence-receipt-schema.md) |
+| Safe Intake ↔ ASPRON bridge | [`docs/product-spec/safe-intake-aspron-bridge.md`](docs/product-spec/safe-intake-aspron-bridge.md) |
+| Privacy control map | [`docs/privacy-governance/privacy-control-map.md`](docs/privacy-governance/privacy-control-map.md) |
+| Threat model | [`docs/security-risk/threat-model.md`](docs/security-risk/threat-model.md) |
+| Drive action index | [`docs/drive/06-ASPRON-ACTIONS-index.md`](docs/drive/06-ASPRON-ACTIONS-index.md) |
+| Test fixtures | [`tests/fixtures/safe-intake-fixtures.json`](tests/fixtures/safe-intake-fixtures.json) |
+| Lifecycle/fail-closed tests | [`tests/lifecycle-fail-closed.test.js`](tests/lifecycle-fail-closed.test.js) |
+
+## Safe Intake relationship
+
+Safe Intake is the controlled intake pipeline:
+
+```text
+raw or restricted input
+→ risk classification
+→ redaction candidate
+→ human review
+→ approved AI-safe copy
+→ evidence trail
+```
+
+ASPRON is the dissolvable capsule pattern that wraps and demonstrates that pipeline.
 
 ## Demo boundary
 
@@ -51,6 +100,8 @@ It demonstrates product mechanics only:
 - disabled workflow controls after dissolve
 
 It does **not** provide production-grade PII detection, secure storage, authentication, encrypted audit logging, access control, server-side policy enforcement, legal compliance, or true data destruction.
+
+Do not claim ASPRON is production-ready, compliant, certified, secure by default, tamper-proof, regulator-approved, or customer-proven unless separate evidence exists and the wording is explicitly approved.
 
 ## Data handling principle
 
