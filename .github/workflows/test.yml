@@ -1,0 +1,26 @@
+name: ASPRON tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lifecycle-fail-closed:
+    name: Lifecycle and fail-closed tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run ASPRON lifecycle/fail-closed tests
+        run: node tests/lifecycle-fail-closed.test.js
