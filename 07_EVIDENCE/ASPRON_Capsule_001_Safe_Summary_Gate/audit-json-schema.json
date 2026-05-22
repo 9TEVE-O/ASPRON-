@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspron.local/schemas/capsule-001-audit-receipt.schema.json",
+  "title": "ASPRON Capsule 001 Safe Summary Gate Audit Receipt",
+  "type": "object",
+  "required": [
+    "capsule_id",
+    "capsule_type",
+    "policy_version",
+    "exported_at",
+    "prototype_boundary",
+    "raw_values_retained_in_receipt",
+    "raw_input_access_attempt",
+    "human_review",
+    "ai_visible_payload_type",
+    "ai_visible_payload_retained",
+    "ai_visible_payload_retention",
+    "ai_visible_input_fingerprint",
+    "safe_summary",
+    "detected_risk_fields",
+    "capsule_state",
+    "evidence_retained",
+    "events"
+  ],
+  "properties": {
+    "capsule_id": { "type": "string", "minLength": 1 },
+    "capsule_type": { "const": "ASPRON_Capsule_001_Safe_Summary_Gate" },
+    "policy_version": { "type": "string", "minLength": 1 },
+    "exported_at": { "type": "string", "format": "date-time" },
+    "prototype_boundary": { "type": "string" },
+    "raw_values_retained_in_receipt": { "const": false },
+    "raw_input_access_attempt": { "enum": ["blocked", "not_attempted"] },
+    "human_review": { "enum": ["approved", "not_approved"] },
+    "approved_by": { "type": "string" },
+    "approved_at": { "type": "string" },
+    "ai_visible_payload_type": { "const": "approved_redacted_copy_only" },
+    "ai_visible_payload_retained": { "const": false },
+    "ai_visible_payload_retention": { "const": "summary_and_demo_fingerprint_only" },
+    "ai_visible_input_fingerprint": { "type": "string", "pattern": "^demo-fnv1a-32:[a-f0-9]{8}$" },
+    "safe_summary": {
+      "type": "object",
+      "required": ["summary_type", "source", "text", "detected_risk_fields", "redaction_token_count", "ai_visible_input_fingerprint", "raw_input_access"],
+      "properties": {
+        "summary_type": { "const": "approved_redacted_safe_summary" },
+        "source": { "const": "approved_redacted_copy_only" },
+        "text": { "type": "string" },
+        "detected_risk_fields": { "type": "array", "items": { "type": "string" } },
+        "redaction_token_count": { "type": "integer", "minimum": 0 },
+        "ai_visible_input_fingerprint": { "type": "string" },
+        "raw_input_access": { "const": "blocked" }
+      },
+      "additionalProperties": false
+    },
+    "detected_risk_fields": { "type": "array", "items": { "type": "string" } },
+    "capsule_state": { "enum": ["EVIDENCE_RECEIPT_READY", "DISSOLVED"] },
+    "dissolved_at": { "type": "string" },
+    "evidence_retained": { "const": true },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "event", "detail", "level", "raw_values_recorded"],
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "event": { "type": "string" },
+          "detail": { "type": "string" },
+          "level": { "enum": ["info", "good", "blocked"] },
+          "raw_values_recorded": { "const": false }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "not": {
+    "anyOf": [
+      { "required": ["raw_text"] },
+      { "required": ["raw_input"] },
+      { "required": ["ai_visible_input"] },
+      { "required": ["redaction_candidate"] }
+    ]
+  },
+  "additionalProperties": true
+}
