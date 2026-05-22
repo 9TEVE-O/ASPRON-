@@ -24,3 +24,6 @@ jobs:
 
       - name: Run ASPRON lifecycle/fail-closed tests
         run: node tests/lifecycle-fail-closed.test.js
+
+      - name: Run Capsule 001 Safe Summary Gate tests
+        run: node tests/capsule-001-safe-summary-gate.test.js
