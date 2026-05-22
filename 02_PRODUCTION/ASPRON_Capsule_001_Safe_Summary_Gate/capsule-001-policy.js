@@ -1,3 +1,9 @@
+// Demo boundary:
+// This module powers a browser-only ASPRON proof capsule.
+// It visualizes fail-closed lifecycle mechanics, but it is not production security enforcement.
+// Production ASPRON must enforce these transitions server-side with backend-owned state,
+// approval identity, audit logging, receipt generation, and tool/provider access control.
+
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
     module.exports = factory(require("../../lib/aspron-risk-rules.js"));
