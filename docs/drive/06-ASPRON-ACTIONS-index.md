@@ -28,6 +28,8 @@ The Drive folder should point back to this repository as the build canon for ASP
 | ASPRON Demo Boundary and Claims | `docs/product-spec/demo-boundary-and-claims.md` |
 | ASPRON Capsule Lifecycle | `docs/product-spec/capsule-lifecycle.md` |
 | ASPRON Evidence Receipt Schema | `docs/product-spec/evidence-receipt-schema.md` |
+| ASPRON Receipt Integrity Design | `docs/product-spec/receipt-integrity-design.md` |
+| ASPRON Safe Intake Flow | `docs/product-spec/aspron-safe-intake-flow.md` |
 | ASPRON Safe Intake Bridge | `docs/product-spec/safe-intake-aspron-bridge.md` |
 | ASPRON Privacy Control Map | `docs/privacy-governance/privacy-control-map.md` |
 | ASPRON Threat Model | `docs/security-risk/threat-model.md` |
@@ -57,6 +59,8 @@ GitHub repo: 9TEVE-O/ASPRON-
 - docs/product-spec/demo-boundary-and-claims.md — safe/unsafe claims
 - docs/product-spec/capsule-lifecycle.md — canonical lifecycle
 - docs/product-spec/evidence-receipt-schema.md — evidence receipt schema
+- docs/product-spec/receipt-integrity-design.md — receipt integrity design and demo/production boundary
+- docs/product-spec/aspron-safe-intake-flow.md — Safe Intake capsule flow
 - docs/product-spec/safe-intake-aspron-bridge.md — Safe Intake ↔ ASPRON relationship
 - docs/privacy-governance/privacy-control-map.md — privacy controls
 - docs/security-risk/threat-model.md — threat model
