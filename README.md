@@ -47,7 +47,7 @@ The prototype demonstrates a controlled intake pipeline for an agentic future:
 6. A human review step approves the safe version.
 7. Only the approved redacted copy becomes AI-visible.
 8. The prototype shows exactly what the AI or agent would see.
-9. An evidence receipt is generated.
+9. A reduced evidence receipt is generated.
 10. The capsule dissolves its working capability while retaining reduced evidence.
 
 Core rule:
@@ -77,6 +77,7 @@ node tests/lifecycle-fail-closed.test.js
 node tests/capsule-001-safe-summary-gate.test.js
 node tests/receipt-integrity-boundary.test.js
 node tests/capsule-001-receipt-boundary.test.js
+node tests/capsule-001-ui-boundary.test.js
 ```
 
 The test suite checks that:
@@ -88,6 +89,7 @@ The test suite checks that:
 - evidence receipt does not intentionally preserve raw sensitive values or full approved narrative
 - demo receipt integrity fields remain explicitly non-production
 - Capsule 001 uses the shared receipt boundary
+- Capsule 001 visibly states the receipt boundary in the UI
 - capsule lifecycle reaches the dissolved state
 
 GitHub Actions also runs these commands through `.github/workflows/test.yml` on pushes and pull requests to `main`.
@@ -114,6 +116,7 @@ GitHub Actions also runs these commands through `.github/workflows/test.yml` on 
 | Capsule 001 tests | [`tests/capsule-001-safe-summary-gate.test.js`](tests/capsule-001-safe-summary-gate.test.js) |
 | Receipt integrity boundary tests | [`tests/receipt-integrity-boundary.test.js`](tests/receipt-integrity-boundary.test.js) |
 | Capsule 001 receipt boundary tests | [`tests/capsule-001-receipt-boundary.test.js`](tests/capsule-001-receipt-boundary.test.js) |
+| Capsule 001 UI boundary tests | [`tests/capsule-001-ui-boundary.test.js`](tests/capsule-001-ui-boundary.test.js) |
 
 ## Safe Intake relationship
 
@@ -146,7 +149,7 @@ It demonstrates product mechanics only:
 - redacted AI-visible input path
 - manual approval gate
 - exact AI-visible payload
-- evidence receipt
+- reduced evidence receipt
 - disabled workflow controls after dissolve
 
 It does **not** provide production-grade PII detection, secure storage, authentication, encrypted audit logging, access control, server-side policy enforcement, legal compliance, cryptographic receipt integrity, or true data destruction.
