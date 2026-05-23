@@ -76,6 +76,7 @@ Run the dependency-free lifecycle and fail-closed test runners with:
 node tests/lifecycle-fail-closed.test.js
 node tests/capsule-001-safe-summary-gate.test.js
 node tests/receipt-integrity-boundary.test.js
+node tests/capsule-001-receipt-boundary.test.js
 ```
 
 The test suite checks that:
@@ -86,6 +87,7 @@ The test suite checks that:
 - exact AI-visible input is required before summary
 - evidence receipt does not intentionally preserve raw sensitive values or full approved narrative
 - demo receipt integrity fields remain explicitly non-production
+- Capsule 001 uses the shared receipt boundary
 - capsule lifecycle reaches the dissolved state
 
 GitHub Actions also runs these commands through `.github/workflows/test.yml` on pushes and pull requests to `main`.
@@ -111,6 +113,7 @@ GitHub Actions also runs these commands through `.github/workflows/test.yml` on 
 | Lifecycle/fail-closed tests | [`tests/lifecycle-fail-closed.test.js`](tests/lifecycle-fail-closed.test.js) |
 | Capsule 001 tests | [`tests/capsule-001-safe-summary-gate.test.js`](tests/capsule-001-safe-summary-gate.test.js) |
 | Receipt integrity boundary tests | [`tests/receipt-integrity-boundary.test.js`](tests/receipt-integrity-boundary.test.js) |
+| Capsule 001 receipt boundary tests | [`tests/capsule-001-receipt-boundary.test.js`](tests/capsule-001-receipt-boundary.test.js) |
 
 ## Safe Intake relationship
 
