@@ -90,6 +90,45 @@ Reduced evidence may include:
 - dissolve timestamp
 - tool/provider register snapshot
 
+## Example integrity receipt block
+
+This example shows the intended shape of a reduced receipt. It is not a production integrity guarantee unless signing, identity, verification, and durable append-only storage exist.
+
+```json
+{
+  "receipt_id": "aspron_receipt_2026-05-20T20-05-45Z_000001",
+  "receipt_type": "safe_intake_summary_gate",
+  "receipt_maturity": "demo_reduced_evidence_only",
+  "capsule_id": "aspron_capsule_001_safe_summary_gate",
+  "capsule_state": "dissolved",
+  "policy_version": "demo-policy-v0.1",
+  "created_at": "2026-05-20T20:05:45Z",
+  "dissolved_at": "2026-05-20T20:07:15Z",
+  "input_fingerprint": {
+    "algorithm": "demo_non_cryptographic_fingerprint",
+    "value": "demo-fingerprint-placeholder",
+    "raw_input_recorded": false
+  },
+  "approved_payload_fingerprint": {
+    "algorithm": "demo_non_cryptographic_fingerprint",
+    "value": "demo-approved-payload-placeholder",
+    "full_payload_recorded": false
+  },
+  "summary_only_evidence": {
+    "detected_risk_fields": ["email", "phone", "private_note"],
+    "redaction_token_count": 3,
+    "approval_state": "approved",
+    "safe_output_created": true,
+    "raw_values_recorded": false
+  },
+  "integrity_status": {
+    "signed": false,
+    "append_only_storage": false,
+    "production_verifiable": false
+  }
+}
+```
+
 ## Failed-gate receipt structure
 
 Failed gates are evidence.
