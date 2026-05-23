@@ -154,29 +154,30 @@
   }
 
   function createEvidenceReceipt(c) {
-    notDissolved(c); stateIs(c, STATES.SAFE_SUMMARY_READY, "INVALID_STATE_FOR_RECEIPT");
+    assertRules(); notDissolved(c); stateIs(c, STATES.SAFE_SUMMARY_READY, "INVALID_STATE_FOR_RECEIPT");
+    const exportedAt = now();
     audit(c, "evidence_receipt.created", "reduced receipt created; raw and full approved payload excluded", "good");
-    c.receipt = {
-      capsule_id: c.capsule_id,
-      capsule_type: c.capsule_type,
-      policy_version: c.policy_version,
-      exported_at: now(),
-      prototype_boundary: "browser-only demo; not production security, compliance, storage, or deletion",
-      raw_values_retained_in_receipt: false,
-      raw_input_access_attempt: c.raw_access_attempted ? "blocked" : "not_attempted",
-      human_review: c.approved ? "approved" : "not_approved",
-      approved_by: c.approved_by,
-      approved_at: c.approved_at,
-      ai_visible_payload_type: "approved_redacted_copy_only",
-      ai_visible_payload_retained: false,
-      ai_visible_payload_retention: "summary_and_demo_fingerprint_only",
-      ai_visible_input_fingerprint: fp(c.ai_visible_input),
-      safe_summary: c.safe_summary,
-      detected_risk_fields: c.risks.map(r => r.field),
-      capsule_state: STATES.EVIDENCE_RECEIPT_READY,
-      evidence_retained: true,
-      events: c.audit_events.slice()
-    };
+    c.receipt = Object.assign(
+      RiskRules.createReceipt({
+        capsuleId: c.capsule_id,
+        policyVersion: c.policy_version,
+        exportedAt,
+        inputType: "capsule_001_safe_summary_gate",
+        risks: c.risks,
+        rawAccessBlocked: c.raw_access_attempted,
+        approved: c.approved,
+        aiVisiblePayload: c.ai_visible_input,
+        auditEvents: c.audit_events.slice()
+      }),
+      {
+        capsule_type: c.capsule_type,
+        capsule_state: STATES.EVIDENCE_RECEIPT_READY,
+        approved_by: c.approved_by,
+        approved_at: c.approved_at,
+        ai_visible_input_fingerprint: fp(c.ai_visible_input),
+        safe_summary: c.safe_summary
+      }
+    );
     c.state = STATES.EVIDENCE_RECEIPT_READY;
     return c;
   }
