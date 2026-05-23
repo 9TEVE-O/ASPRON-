@@ -27,3 +27,6 @@ jobs:
 
       - name: Run Capsule 001 Safe Summary Gate tests
         run: node tests/capsule-001-safe-summary-gate.test.js
+
+      - name: Run receipt integrity boundary tests
+        run: node tests/receipt-integrity-boundary.test.js
