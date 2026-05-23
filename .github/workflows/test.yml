@@ -30,3 +30,6 @@ jobs:
 
       - name: Run receipt integrity boundary tests
         run: node tests/receipt-integrity-boundary.test.js
+
+      - name: Run Capsule 001 receipt boundary tests
+        run: node tests/capsule-001-receipt-boundary.test.js
