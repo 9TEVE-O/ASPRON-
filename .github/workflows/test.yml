@@ -33,3 +33,6 @@ jobs:
 
       - name: Run Capsule 001 receipt boundary tests
         run: node tests/capsule-001-receipt-boundary.test.js
+
+      - name: Run Capsule 001 UI boundary tests
+        run: node tests/capsule-001-ui-boundary.test.js
