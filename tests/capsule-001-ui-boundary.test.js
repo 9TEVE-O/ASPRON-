@@ -28,5 +28,9 @@ assert.ok(html.includes("Production-verifiable:"), "Receipt summary must expose 
 assert.ok(html.includes("Raw values recorded:"), "Receipt summary must expose raw values recording state");
 assert.ok(html.includes("Raw input recorded:"), "Receipt summary must expose raw input recording state");
 assert.ok(html.includes("Full AI payload recorded:"), "Receipt summary must expose full AI payload recording state");
+assert.ok(html.includes("const controls ="), "Capsule 001 UI must define a lifecycle controls collection");
+assert.ok(html.includes('"classify", "rawAttempt", "redact", "approve", "aiInput", "summary", "receipt", "dissolve"'), "Lifecycle controls collection must include all action buttons");
+assert.ok(html.includes("button.disabled = capsule.dissolved"), "Lifecycle controls must visually lock after dissolve");
+assert.ok(html.includes("Lifecycle controls are locked."), "Dissolve message must state that lifecycle controls are locked");
 
 console.log("Capsule 001 UI receipt boundary test passed.");
