@@ -32,6 +32,51 @@ Dissolve Working Capability
 Reduced Evidence Remains
 ```
 
+## Branching behavior
+
+Safe Intake is not only a linear preparation path. It is a gated branch system.
+
+```text
+Risk Classification
+  ├─ Safe / low-risk path
+  │    ↓
+  │  Redaction Candidate
+  │    ↓
+  │  Human Approval Gate
+  │    ↓
+  │  Exact AI-Visible Input
+  │    ↓
+  │  Safe Summary / Controlled Output
+  │    ↓
+  │  Evidence Receipt
+  │    ↓
+  │  Dissolve Working Capability
+  │
+  └─ Unsafe / restricted path
+       ↓
+     Block raw access
+       ↓
+     Record failed-gate event
+       ↓
+     Require redaction, neutralisation, or human decision
+       ↓
+     Do not expose raw input to AI-visible payload
+       ↓
+     Evidence Receipt
+       ↓
+     Dissolve Working Capability
+```
+
+## Gate rules
+
+- Raw input must remain inside the ASPRON capsule boundary.
+- Risk classification must happen before any AI-visible payload is created.
+- A redaction candidate is not automatically safe.
+- Human approval is required before AI-visible input.
+- Safe summary or controlled output must only use the approved AI-visible input.
+- Unsafe or restricted paths must fail closed and record reduced evidence.
+- After dissolve, working capability must not resume.
+
 ## Concept boundaries
 
 | Concept | Meaning |
@@ -53,6 +98,14 @@ Reduced Evidence Remains
 7. A reduced evidence receipt is generated.
 8. The working capsule capability dissolves.
 9. Reduced evidence remains for accountability.
+
+## Related documents
+
+- [Safe Intake ↔ ASPRON bridge](safe-intake-aspron-bridge.md)
+- [Capsule lifecycle](capsule-lifecycle.md)
+- [Evidence receipt schema](evidence-receipt-schema.md)
+- [Receipt integrity design](receipt-integrity-design.md)
+- [Demo boundary and claims](demo-boundary-and-claims.md)
 
 ## Demo boundary
 
