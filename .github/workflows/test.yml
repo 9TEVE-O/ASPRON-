@@ -36,3 +36,6 @@ jobs:
 
       - name: Run Capsule 001 UI boundary tests
         run: node tests/capsule-001-ui-boundary.test.js
+
+      - name: Run durable assurance control plane tests
+        run: node tests/assurance-control-plane.test.js
