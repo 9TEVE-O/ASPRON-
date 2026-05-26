@@ -6,6 +6,14 @@ ASPRON is a dissolvable application proof-of-concept: a temporary workflow capsu
 
 This repository contains a browser-only prototype for the **ASPRON Safe Intake Capsule**.
 
+## Quickstart
+
+Start here:
+
+- [`QUICKSTART.md`](QUICKSTART.md)
+
+Use the quickstart for the current repo map, demo route, test commands, safe wording, stop conditions, and next backend design milestone.
+
 ## Canonical proof capsule
 
 The current canonical proof route is:
@@ -20,17 +28,16 @@ The root demo is useful background, but Capsule 001 is the current proof capsule
 
 ## Current execution gate
 
-Backend implementation is intentionally blocked until these planning gates are complete:
-
-1. P0 triage review for stale or ambiguous blockers.
-2. Browser-only claim-boundary hardening.
-3. Backend policy gate architecture.
-4. Receipt integrity design.
-5. Canonical demo route decision.
-
-See:
+The original browser-proof P0 blockers have been resolved and recorded in:
 
 - [`docs/reviews/p0-triage-review.md`](docs/reviews/p0-triage-review.md)
+
+Backend implementation remains intentionally blocked until the backend policy-gate v0 skeleton is reviewed and accepted:
+
+- [`docs/build/backend-policy-gate-v0-skeleton.md`](docs/build/backend-policy-gate-v0-skeleton.md)
+
+Supporting architecture and claim-boundary docs:
+
 - [`docs/build/backend-policy-gate-architecture.md`](docs/build/backend-policy-gate-architecture.md)
 - [`docs/product-spec/receipt-integrity-design.md`](docs/product-spec/receipt-integrity-design.md)
 - [`docs/product-spec/aspron-safe-intake-flow.md`](docs/product-spec/aspron-safe-intake-flow.md)
@@ -98,12 +105,15 @@ GitHub Actions also runs these commands through `.github/workflows/test.yml` on 
 
 | Area | File |
 |---|---|
+| Quickstart | [`QUICKSTART.md`](QUICKSTART.md) |
 | P0 triage review | [`docs/reviews/p0-triage-review.md`](docs/reviews/p0-triage-review.md) |
 | Backend policy gate architecture | [`docs/build/backend-policy-gate-architecture.md`](docs/build/backend-policy-gate-architecture.md) |
+| Backend policy gate v0 skeleton | [`docs/build/backend-policy-gate-v0-skeleton.md`](docs/build/backend-policy-gate-v0-skeleton.md) |
 | Receipt integrity design | [`docs/product-spec/receipt-integrity-design.md`](docs/product-spec/receipt-integrity-design.md) |
 | ASPRON Safe Intake flow | [`docs/product-spec/aspron-safe-intake-flow.md`](docs/product-spec/aspron-safe-intake-flow.md) |
 | Demo walkthrough | [`docs/demo/demo-script.md`](docs/demo/demo-script.md) |
 | Demo checklist | [`docs/demo/demo-checklist.md`](docs/demo/demo-checklist.md) |
+| Client proof summary | [`docs/demo/client-proof-summary.md`](docs/demo/client-proof-summary.md) |
 | Demo boundary and claims | [`docs/product-spec/demo-boundary-and-claims.md`](docs/product-spec/demo-boundary-and-claims.md) |
 | Capsule lifecycle | [`docs/product-spec/capsule-lifecycle.md`](docs/product-spec/capsule-lifecycle.md) |
 | Evidence receipt schema | [`docs/product-spec/evidence-receipt-schema.md`](docs/product-spec/evidence-receipt-schema.md) |

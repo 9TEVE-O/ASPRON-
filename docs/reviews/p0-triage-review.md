@@ -2,23 +2,35 @@
 
 ## Purpose
 
-This review removes stale or ambiguous blocker noise before any new ASPRON implementation work begins.
+This file records the current P0 status before any new ASPRON implementation work begins.
 
-The project may proceed only after each open P0 is either closed, re-scoped, or explicitly kept open with a documented next action.
+The goal is to remove stale blocker language, preserve the decisions already made, and keep the backend path gated until the next design contract is accepted.
 
-## Council decision
+## Current decision
 
-Backend implementation remains blocked until this review is completed.
+The original P0 blockers have been resolved for the browser proof package.
+
+Backend implementation remains blocked until the backend policy-gate v0 skeleton is reviewed and accepted.
+
+## Status summary
+
+| Item | Current status | Decision |
+|---|---|---|
+| #7 Risk-rule alignment | Closed as completed | Shared browser and Node rule source is now `lib/aspron-risk-rules.js`. |
+| #8 Receipt payload retention | Closed as completed | Default receipts retain reduced evidence only and do not preserve raw or full AI-visible payloads. |
+| #9 UI-only enforcement boundary | Closed as completed for demo boundary hardening | The demo now states browser-only enforcement limits and points to backend policy-gate architecture. |
 
 ## #7 Risk-rule alignment
 
-**Decision:** Review before closing or re-scoping.
+**Decision:** Closed as completed for the browser proof.
 
 ### Current read
 
 Issue #7 reported that the browser prototype and tests did not share the same risk-detection rules, creating a false-confidence risk.
 
-The current code now uses `lib/aspron-risk-rules.js` as a shared browser and Node-compatible risk-rule source. The shared rule list includes:
+The current code uses `lib/aspron-risk-rules.js` as the shared browser and Node-compatible risk-rule source.
+
+The shared rule list includes:
 
 - `name`
 - `date_of_birth`
@@ -31,72 +43,81 @@ The current code now uses `lib/aspron-risk-rules.js` as a shared browser and Nod
 - `private_marker`
 - `prompt_injection_instruction`
 
-### Evidence to check
+### Evidence now in repo
 
-- Browser demo imports the shared risk-rule source.
 - Capsule 001 imports the shared risk-rule source.
+- The root browser demo imports the shared risk-rule source.
 - Tests import the same shared risk-rule source.
-- Fixtures do not expect labels that are absent from the shared source.
+- Fixtures are checked against the shared supported label list.
 
-### Remaining work
+### Follow-up rule
 
-- Confirm the tests pass against the shared rule source.
-- Confirm the browser demo no longer has a separate hard-coded risk list.
-- Close #7 if fully satisfied.
-- Re-scope #7 if only documentation or additional coverage remains.
+If future risk labels are added, add them to `lib/aspron-risk-rules.js` first, then update fixtures, browser surfaces, and tests from that shared source.
 
 ## #8 Receipt payload retention
 
-**Decision:** Review before closing or re-scoping.
+**Decision:** Closed as completed for default demo receipt privacy.
 
 ### Current read
 
 Issue #8 reported that the browser receipt preserved the full `ai_visible_payload`, creating a second privacy surface.
 
-Current receipt behavior should retain only summary/fingerprint evidence by default and should not retain raw values, the full redaction candidate, or the full AI-visible payload.
+Current receipt behaviour retains only summary/fingerprint evidence by default and does not intentionally retain raw values, the full redaction candidate, or the full AI-visible payload.
 
-### Evidence to check
+### Evidence now in repo
 
 - Receipt output sets `ai_visible_payload_retained` to `false`.
 - Receipt output uses `summary_and_demo_fingerprint_only` retention.
-- Receipt output does not include an `ai_visible_payload`, `ai_visible_input`, `raw_text`, `raw_input`, or `redaction_candidate` field.
-- Tests prove that raw values and private narrative are not preserved in receipt output.
+- Receipt output avoids `ai_visible_payload`, `ai_visible_input`, `raw_text`, `raw_input`, and `redaction_candidate` fields by default.
+- Tests assert that raw values and private narrative are not preserved in receipt output.
 
-### Remaining work
+### Follow-up rule
 
-- Confirm the tests pass.
-- Confirm the audit schema rejects raw/full-payload fields.
-- Close #8 if fully satisfied.
-- Re-scope #8 to receipt-integrity design if privacy retention is solved but signing/storage design remains.
+Future work on signing, append-only storage, and verification belongs under receipt integrity design. Do not reopen this as a privacy-retention bug unless the receipt again preserves full/raw content by default.
 
 ## #9 UI-only enforcement boundary
 
-**Decision:** Keep active.
+**Decision:** Closed as completed for browser-demo boundary hardening.
 
 ### Current read
 
-Issue #9 remains the core claim-boundary blocker.
+Issue #9 was the core claim-boundary blocker.
 
-The current demo visualizes policy behavior through browser state and JavaScript functions. That is useful for a proof capsule, but it must not be described as production enforcement.
+The current demo still visualizes policy behaviour through browser state and JavaScript functions. That is acceptable for the proof capsule, provided it is never described as production enforcement.
 
-### Next action
+### Evidence now in repo
 
-Complete claim-boundary hardening and backend architecture documentation before backend implementation begins.
+- Capsule 001 UI states the demo is local/browser-only and not production enforcement.
+- Front-end policy code comments state the browser state machine is proof logic, not production security.
+- README states production ASPRON requires backend-owned state, server-side policy gates, approval identity, audit logging, receipt generation, and tool/provider access control.
+- `docs/build/backend-policy-gate-architecture.md` defines the production enforcement direction.
 
-Required work:
+### Follow-up rule
 
-- Add explicit UI copy stating enforcement is simulated locally.
-- Add code comments above front-end state/event handlers saying browser state is not security enforcement.
-- Add `docs/build/backend-policy-gate-architecture.md`.
-- Add docs explaining production must fail closed server-side.
+Backend work must start from the backend policy-gate architecture and the v0 skeleton design. Do not add hosted AI calls, external tools, real client data, real PII, database persistence, auth, or compliance claims as part of the browser proof.
+
+## Remaining gates before backend implementation
+
+Backend implementation should not begin until these gates are accepted:
+
+- [ ] Backend policy-gate v0 skeleton reviewed.
+- [ ] State transition contract accepted.
+- [ ] Receipt privacy boundary retained.
+- [ ] Receipt integrity non-claims retained.
+- [ ] Tool/provider register requirement retained.
+- [ ] Human approval identity model defined at least for demo/server skeleton maturity.
+- [ ] No real sensitive data, hosted AI calls, or production claims introduced.
 
 ## Exit criteria
 
-- [ ] #7 has a recorded decision: close, re-scope, or keep open.
-- [ ] #8 has a recorded decision: close, re-scope, or keep open.
-- [ ] #9 remains active as the claim-boundary blocker until its acceptance criteria are satisfied.
-- [ ] No stale P0 remains unexplained.
+- [x] #7 has a recorded decision.
+- [x] #8 has a recorded decision.
+- [x] #9 has a recorded decision for browser-demo boundary hardening.
+- [x] No stale P0 remains unexplained.
+- [ ] Backend v0 skeleton has been reviewed and accepted before any backend implementation begins.
 
 ## Stop condition
 
-Do not start backend implementation until this review is complete.
+Do not start backend implementation until the backend policy-gate v0 skeleton is reviewed and accepted.
+
+Do not describe the current browser demo as production enforcement, legal compliance, secure deletion, cryptographic proof, or production-grade privacy/security.
