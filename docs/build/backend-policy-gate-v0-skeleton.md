@@ -42,6 +42,19 @@ receipt is generated from backend event state
 post-dissolve transitions fail closed
 ```
 
+## Alignment with Capsule 001
+
+V0 should reuse the same state names and base audit-event shape as the existing Capsule 001 browser proof where practical.
+
+This avoids creating a translation layer between:
+
+- `02_PRODUCTION/ASPRON_Capsule_001_Safe_Summary_Gate/capsule-001-policy.js`
+- `lib/aspron-risk-rules.js`
+- the future backend policy gate
+- receipt generation
+
+Backend-only metadata can be added, but the shared lifecycle vocabulary should stay consistent unless a deliberate schema migration is made.
+
 ## Proposed modules
 
 | Module | Responsibility |
@@ -56,32 +69,60 @@ post-dissolve transitions fail closed
 
 ## V0 state model
 
+Use Capsule 001 state names for common lifecycle states:
+
 ```text
 INPUT_RECEIVED
 RISK_CLASSIFIED
 RAW_ACCESS_BLOCKED
-REDACTION_CANDIDATE_CREATED
+REDACTION_CANDIDATE
 APPROVED
-AI_VISIBLE_INPUT_RELEASED
-SAFE_OUTPUT_CREATED
-EVIDENCE_RECEIPT_CREATED
+AI_VISIBLE_INPUT_READY
+SAFE_SUMMARY_READY
+EVIDENCE_RECEIPT_READY
 DISSOLVED
+```
+
+Optional backend-only state:
+
+```text
 FAILED_CLOSED
 ```
+
+`FAILED_CLOSED` should be used only if the backend skeleton needs an explicit system-failure or unsafe-state marker. Normal blocked requests should usually preserve current state and record a blocked audit event.
 
 ## Required transitions
 
 | Request | Allowed when | Result |
 |---|---|---|
 | `create_capsule` | always for fake/sample input | `INPUT_RECEIVED` |
+| `replace_input` | before dissolve; preferably before approval | `INPUT_RECEIVED`; derived state invalidated |
 | `classify_risk` | state is `INPUT_RECEIVED` | `RISK_CLASSIFIED` |
 | `attempt_raw_agent_access` | before dissolve | blocked event, `RAW_ACCESS_BLOCKED` |
-| `create_redaction_candidate` | state is `RISK_CLASSIFIED` or `RAW_ACCESS_BLOCKED` | `REDACTION_CANDIDATE_CREATED` |
+| `create_redaction_candidate` | state is `RISK_CLASSIFIED` or `RAW_ACCESS_BLOCKED` | `REDACTION_CANDIDATE` |
 | `approve_candidate` | redaction candidate fingerprint matches current input fingerprint | `APPROVED` |
-| `release_ai_visible_input` | state is `APPROVED` | `AI_VISIBLE_INPUT_RELEASED` |
-| `create_safe_output` | state is `AI_VISIBLE_INPUT_RELEASED` | `SAFE_OUTPUT_CREATED` |
-| `create_receipt` | state is `SAFE_OUTPUT_CREATED` | `EVIDENCE_RECEIPT_CREATED` |
-| `dissolve_capsule` | state is `EVIDENCE_RECEIPT_CREATED` | `DISSOLVED` |
+| `create_ai_visible_input` | state is `APPROVED` | `AI_VISIBLE_INPUT_READY` |
+| `create_safe_summary` | state is `AI_VISIBLE_INPUT_READY` | `SAFE_SUMMARY_READY` |
+| `create_receipt` | state is `SAFE_SUMMARY_READY` | `EVIDENCE_RECEIPT_READY` |
+| `dissolve_capsule` | state is `EVIDENCE_RECEIPT_READY` | `DISSOLVED` |
+
+## Input replacement rule
+
+V0 should support explicit input replacement only as a demo-safe equivalent of `replaceRawInput` in Capsule 001.
+
+When input is replaced:
+
+- raw demo input fingerprint changes;
+- risk classification is cleared;
+- redaction candidate is cleared;
+- approval is cleared;
+- AI-visible input is cleared;
+- safe summary is cleared;
+- receipt is cleared;
+- state returns to `INPUT_RECEIVED`;
+- an `input.changed` audit event is recorded without raw values.
+
+Backend v0 may later choose immutable capsule runs, but this document keeps input replacement in scope so stale-fingerprint behaviour can be tested explicitly.
 
 ## Forbidden transitions
 
@@ -90,8 +131,8 @@ V0 must fail closed when a request attempts:
 - raw input to model/tool;
 - unreviewed input to model/tool;
 - redaction candidate to model/tool before approval;
-- safe output before exact AI-visible input release;
-- receipt before safe output;
+- safe summary before exact AI-visible input is ready;
+- receipt before safe summary;
 - export before receipt;
 - any action after dissolve;
 - approval after input changed;
@@ -105,16 +146,19 @@ This is a design sketch, not a final API contract.
 
 ```text
 POST /capsules
+POST /capsules/:id/input
 POST /capsules/:id/classify-risk
 POST /capsules/:id/attempt-raw-agent-access
 POST /capsules/:id/redaction-candidate
 POST /capsules/:id/approve
-POST /capsules/:id/release-ai-visible-input
-POST /capsules/:id/safe-output
+POST /capsules/:id/ai-visible-input
+POST /capsules/:id/safe-summary
 POST /capsules/:id/receipt
 POST /capsules/:id/dissolve
 GET  /capsules/:id/status
 ```
+
+`POST /capsules/:id/input` is the explicit input replacement path. It should be demo-only in v0 and must invalidate all derived state.
 
 ## Minimal capsule record
 
@@ -152,21 +196,29 @@ For the first backend skeleton, raw content handling should be deliberately narr
 
 ## Audit event shape
 
+Use the existing Capsule 001 base event shape so events can pass through the shared receipt generator without translation:
+
+```json
+{
+  "timestamp": "ISO-8601 timestamp",
+  "event": "risk.classified | agent.raw_access_attempt_blocked | approval.recorded | capsule.dissolved",
+  "detail": "reduced string or structured metadata without raw values",
+  "level": "info | blocked | good",
+  "raw_values_recorded": false
+}
+```
+
+Backend v0 may add optional metadata, provided receipts and logs still avoid raw values:
+
 ```json
 {
   "event_id": "string",
   "capsule_id": "string",
-  "timestamp": "ISO-8601 timestamp",
-  "event_type": "risk.classified | agent.raw_access_attempt_blocked | approval.recorded | capsule.dissolved",
   "decision": "allowed | blocked",
   "state_before": "string",
   "state_after": "string",
   "policy_version": "string",
-  "reason_code": "string or null",
-  "raw_values_recorded": false,
-  "details": {
-    "reduced_metadata_only": true
-  }
+  "reason_code": "string or null"
 }
 ```
 
@@ -188,7 +240,7 @@ It may include:
 - reviewer stub ID;
 - input fingerprint;
 - approved-payload fingerprint;
-- safe-output summary metadata;
+- safe-summary metadata;
 - dissolve timestamp;
 - integrity flags set to false unless actually implemented.
 
@@ -222,11 +274,13 @@ Any attempted model/tool call should produce a blocked event unless a future des
 Backend policy-gate v0 is acceptable only if:
 
 - [ ] state transitions are backend-owned;
+- [ ] shared lifecycle state names match Capsule 001 unless deliberately migrated;
+- [ ] audit events use the existing Capsule 001 base shape unless deliberately migrated;
 - [ ] raw access attempt fails closed and records a blocked event;
-- [ ] summary/safe output before approval is blocked;
+- [ ] safe summary before approval is blocked;
 - [ ] approval is bound to the current redaction candidate fingerprint;
 - [ ] changed input invalidates derived state;
-- [ ] receipt generation requires safe output first;
+- [ ] receipt generation requires safe summary first;
 - [ ] post-dissolve transitions fail closed;
 - [ ] default receipt excludes raw and full payload fields;
 - [ ] integrity flags remain false unless signing/storage are actually implemented;
@@ -239,11 +293,12 @@ Backend policy-gate v0 is acceptable only if:
 Minimum tests:
 
 ```text
-create capsule -> classify -> redact -> approve -> release AI-visible input -> safe output -> receipt -> dissolve
+create capsule -> classify -> redact -> approve -> create AI-visible input -> safe summary -> receipt -> dissolve
 raw access attempt returns blocked event
-safe output before approval fails closed
+safe summary before approval fails closed
+input replacement invalidates redaction, approval, AI-visible input, summary, and receipt
 approval after input change fails closed
-receipt before safe output fails closed
+receipt before safe summary fails closed
 action after dissolve fails closed
 receipt does not include raw input/full payload/private narrative
 unknown tool/model call fails closed
@@ -254,7 +309,7 @@ unknown tool/model call fails closed
 1. Add backend skeleton with in-memory fake/sample capsule store.
 2. Port or share risk/redaction rules.
 3. Implement state transition guard.
-4. Implement reduced audit events.
+4. Implement reduced audit events using the Capsule 001 base shape.
 5. Implement reduced receipt generation.
 6. Add fail-closed tests.
 7. Add a narrow browser/client adapter only after backend tests pass.
@@ -265,6 +320,8 @@ unknown tool/model call fails closed
 Do not implement this until reviewers accept:
 
 - the state model;
+- input replacement rule;
+- audit event base shape;
 - forbidden transitions;
 - receipt boundary;
 - no-real-data rule;
