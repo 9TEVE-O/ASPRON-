@@ -26,6 +26,17 @@ function testTamperedRedactionCandidateCannotBeApproved() {
   assert.equal(c.ai_visible_input, "");
 }
 
+function testTamperingAfterApprovalCannotBecomeAiVisible() {
+  const c = Capsule.createCapsule(RAW);
+  Capsule.classifyRisk(c);
+  Capsule.createRedactionCandidate(c);
+  Capsule.approveCandidate(c, "reviewer_001");
+  c.redaction_candidate = c.raw_text;
+
+  mustBlock(() => Capsule.createAiVisibleInput(c), "TAMPERED_REDACTION_CANDIDATE");
+  assert.equal(c.ai_visible_input, "");
+}
+
 function testRawPurposeCannotLeakIntoReceipt() {
   const c = Capsule.createCapsule(RAW);
   Capsule.classifyRisk(c);
@@ -129,8 +140,17 @@ function testModelPromptMustDescendFromApprovedInput() {
   prompt.parent_artifact_ids = ["artifact-raw-001"];
 
   const errors = Assurance.validateAssuranceRecord(record);
-  assert.ok(errors.includes("model_prompt must descend from approved_ai_input: artifact-prompt-001"), JSON.stringify(errors));
+  assert.ok(errors.includes("model_prompt raw ancestry must pass through approved_ai_input: artifact-prompt-001"), JSON.stringify(errors));
   assert.throws(() => Assurance.assertAssuranceReady(record), /not ready/);
+}
+
+function testMixedRawAndApprovedPromptParentsFail() {
+  const record = createCompleteRecord();
+  const prompt = record.lineage_artifacts.find((artifact) => artifact.artifact_id === "artifact-prompt-001");
+  prompt.parent_artifact_ids = ["artifact-approved-001", "artifact-raw-001"];
+
+  const errors = Assurance.validateAssuranceRecord(record);
+  assert.ok(errors.includes("model_prompt raw ancestry must pass through approved_ai_input: artifact-prompt-001"), JSON.stringify(errors));
 }
 
 function testLegitimateLineageStillPasses() {
@@ -139,8 +159,10 @@ function testLegitimateLineageStillPasses() {
 
 function run() {
   testTamperedRedactionCandidateCannotBeApproved();
+  testTamperingAfterApprovalCannotBecomeAiVisible();
   testRawPurposeCannotLeakIntoReceipt();
   testModelPromptMustDescendFromApprovedInput();
+  testMixedRawAndApprovedPromptParentsFail();
   testLegitimateLineageStillPasses();
   console.log("ASPRON security boundary regression tests passed.");
 }
