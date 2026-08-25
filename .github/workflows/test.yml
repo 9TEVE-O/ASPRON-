@@ -39,3 +39,6 @@ jobs:
 
       - name: Run durable assurance control plane tests
         run: node tests/assurance-control-plane.test.js
+
+      - name: Run security boundary regression tests
+        run: node tests/security-boundary-regressions.test.js
