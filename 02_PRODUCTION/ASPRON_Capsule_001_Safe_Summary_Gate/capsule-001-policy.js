@@ -117,14 +117,19 @@
     return c;
   }
 
-  function approveCandidate(c, reviewer = "demo_reviewer") {
-    assertRules(); notDissolved(c); stateIs(c, STATES.REDACTION_CANDIDATE, "INVALID_STATE_FOR_APPROVAL");
-    if (!c.redaction_candidate) fail("MISSING_REDACTION_CANDIDATE", "Approval requires redaction.");
+  function assertCurrentRedactionCandidate(c) {
+    assertRules();
     if (fp(c.raw_text) !== c.raw_input_fingerprint) fail("STALE_RAW_INPUT", "Raw input changed after the capsule bound its current input.");
     const expectedCandidate = RiskRules.redact(c.raw_text);
     if (c.redaction_candidate !== expectedCandidate || fp(c.redaction_candidate) !== c.redaction_candidate_fingerprint) {
       fail("TAMPERED_REDACTION_CANDIDATE", "Redaction candidate changed after creation.");
     }
+  }
+
+  function approveCandidate(c, reviewer = "demo_reviewer") {
+    assertRules(); notDissolved(c); stateIs(c, STATES.REDACTION_CANDIDATE, "INVALID_STATE_FOR_APPROVAL");
+    if (!c.redaction_candidate) fail("MISSING_REDACTION_CANDIDATE", "Approval requires redaction.");
+    assertCurrentRedactionCandidate(c);
     c.approved = true;
     c.approved_by = reviewer;
     c.approved_at = now();
@@ -136,6 +141,7 @@
   function createAiVisibleInput(c) {
     notDissolved(c); stateIs(c, STATES.APPROVED, "INVALID_STATE_FOR_AI_VISIBLE_INPUT");
     if (!c.approved || !c.redaction_candidate) fail("APPROVAL_REQUIRED", "AI input requires approval.");
+    assertCurrentRedactionCandidate(c);
     c.ai_visible_input = c.redaction_candidate;
     c.state = STATES.AI_VISIBLE_INPUT_READY;
     audit(c, "ai_visible_input.ready", "exact approved redacted input displayed before summary", "good");
