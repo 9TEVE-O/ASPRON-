@@ -153,6 +153,40 @@ function testMixedRawAndApprovedPromptParentsFail() {
   assert.ok(errors.includes("model_prompt raw ancestry must pass through approved_ai_input: artifact-prompt-001"), JSON.stringify(errors));
 }
 
+function testStringParentArtifactIdsFailValidationWithoutThrowing() {
+  let record = createCompleteRecord();
+  record = Assurance.addArtifact(record, {
+    artifact_id: "artifact-prompt-malformed-string",
+    artifact_type: "model_prompt",
+    parent_artifact_ids: "artifact-approved-001",
+    classification: "approved_redacted",
+    approval_state: "approved",
+    ai_visible: true,
+    storage_location: "demo://model-boundary/malformed-string",
+    created_at: "2026-08-25T00:05:00.000Z"
+  });
+
+  const errors = Assurance.validateAssuranceRecord(record);
+  assert.ok(
+    errors.includes("lineage_artifacts[3] parent_artifact_ids must be an array"),
+    JSON.stringify(errors)
+  );
+  assert.throws(() => Assurance.assertAssuranceReady(record), /not ready/);
+}
+
+function testObjectParentArtifactIdsFailValidationWithoutThrowing() {
+  const record = createCompleteRecord();
+  const approvedInput = record.lineage_artifacts.find((artifact) => artifact.artifact_id === "artifact-approved-001");
+  approvedInput.parent_artifact_ids = { parent: "artifact-raw-001" };
+
+  const errors = Assurance.validateAssuranceRecord(record);
+  assert.ok(
+    errors.includes("lineage_artifacts[1] parent_artifact_ids must be an array"),
+    JSON.stringify(errors)
+  );
+  assert.throws(() => Assurance.assertAssuranceReady(record), /not ready/);
+}
+
 function testLegitimateLineageStillPasses() {
   assert.deepEqual(Assurance.validateAssuranceRecord(createCompleteRecord()), []);
 }
@@ -163,6 +197,8 @@ function run() {
   testRawPurposeCannotLeakIntoReceipt();
   testModelPromptMustDescendFromApprovedInput();
   testMixedRawAndApprovedPromptParentsFail();
+  testStringParentArtifactIdsFailValidationWithoutThrowing();
+  testObjectParentArtifactIdsFailValidationWithoutThrowing();
   testLegitimateLineageStillPasses();
   console.log("ASPRON security boundary regression tests passed.");
 }
