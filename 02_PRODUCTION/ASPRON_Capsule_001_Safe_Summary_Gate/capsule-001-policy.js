@@ -101,14 +101,15 @@
     notDissolved(c);
     c.raw_access_attempted = true;
     c.state = STATES.RAW_ACCESS_BLOCKED;
-    audit(c, "agent.raw_access_attempt_blocked", `raw access denied for purpose:${purpose}`, "blocked");
+    void purpose;
+    audit(c, "agent.raw_access_attempt_blocked", "raw access denied before approval; caller-supplied purpose excluded from durable audit", "blocked");
     return { allowed: false, decision: "blocked", raw_value_returned: false };
   }
 
   function createRedactionCandidate(c) {
     assertRules(); notDissolved(c); stateIs(c, [STATES.RISK_CLASSIFIED, STATES.RAW_ACCESS_BLOCKED], "INVALID_STATE_FOR_REDACTION");
     c.redaction_candidate = RiskRules.redact(c.raw_text);
-    c.redaction_candidate_fingerprint = c.raw_input_fingerprint;
+    c.redaction_candidate_fingerprint = fp(c.redaction_candidate);
     c.approved = false; c.ai_visible_input = ""; c.safe_summary = null; c.receipt = null;
     c.state = STATES.REDACTION_CANDIDATE;
     if (c.risks.length > 0 && tokenCount(c.redaction_candidate) === 0) fail("REDACTION_FAILED_CLOSED", "Risk was detected but redaction tokens are missing.");
@@ -117,9 +118,13 @@
   }
 
   function approveCandidate(c, reviewer = "demo_reviewer") {
-    notDissolved(c); stateIs(c, STATES.REDACTION_CANDIDATE, "INVALID_STATE_FOR_APPROVAL");
+    assertRules(); notDissolved(c); stateIs(c, STATES.REDACTION_CANDIDATE, "INVALID_STATE_FOR_APPROVAL");
     if (!c.redaction_candidate) fail("MISSING_REDACTION_CANDIDATE", "Approval requires redaction.");
-    if (c.redaction_candidate_fingerprint !== c.raw_input_fingerprint) fail("STALE_REDACTION_CANDIDATE", "Input changed after redaction.");
+    if (fp(c.raw_text) !== c.raw_input_fingerprint) fail("STALE_RAW_INPUT", "Raw input changed after the capsule bound its current input.");
+    const expectedCandidate = RiskRules.redact(c.raw_text);
+    if (c.redaction_candidate !== expectedCandidate || fp(c.redaction_candidate) !== c.redaction_candidate_fingerprint) {
+      fail("TAMPERED_REDACTION_CANDIDATE", "Redaction candidate changed after creation.");
+    }
     c.approved = true;
     c.approved_by = reviewer;
     c.approved_at = now();
