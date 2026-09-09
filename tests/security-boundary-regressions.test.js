@@ -53,6 +53,52 @@ function testRawPurposeCannotLeakIntoReceipt() {
   assert.ok(!receiptText.includes("sensitive private narrative"));
 }
 
+function testFreeFormReviewerCannotLeakIntoReceipt() {
+  const c = Capsule.createCapsule(RAW);
+  Capsule.classifyRisk(c);
+  Capsule.createRedactionCandidate(c);
+
+  mustBlock(() => Capsule.approveCandidate(c, RAW), "INVALID_REVIEWER_IDENTIFIER");
+  assert.equal(c.approved, false);
+}
+
+function testTamperedAiVisibleInputCannotBeSummarized() {
+  const c = Capsule.createCapsule(RAW);
+  Capsule.classifyRisk(c);
+  Capsule.createRedactionCandidate(c);
+  Capsule.approveCandidate(c, "reviewer_001");
+  Capsule.createAiVisibleInput(c);
+  c.ai_visible_input = c.raw_text;
+
+  mustBlock(() => Capsule.createSafeSummary(c), "TAMPERED_AI_VISIBLE_INPUT");
+  assert.equal(c.safe_summary, null);
+}
+
+function testTamperedRiskClassificationCannotBeSummarized() {
+  const c = Capsule.createCapsule(RAW);
+  Capsule.classifyRisk(c);
+  Capsule.createRedactionCandidate(c);
+  Capsule.approveCandidate(c, "reviewer_001");
+  Capsule.createAiVisibleInput(c);
+  c.risks[0].field = RAW;
+
+  mustBlock(() => Capsule.createSafeSummary(c), "TAMPERED_RISK_CLASSIFICATION");
+  assert.equal(c.safe_summary, null);
+}
+
+function testTamperedSafeSummaryCannotEnterReceipt() {
+  const c = Capsule.createCapsule(RAW);
+  Capsule.classifyRisk(c);
+  Capsule.createRedactionCandidate(c);
+  Capsule.approveCandidate(c, "reviewer_001");
+  Capsule.createAiVisibleInput(c);
+  Capsule.createSafeSummary(c);
+  c.safe_summary.text = RAW;
+
+  mustBlock(() => Capsule.createEvidenceReceipt(c), "TAMPERED_SAFE_SUMMARY");
+  assert.equal(c.receipt, null);
+}
+
 function createCompleteRecord() {
   let record = Assurance.createAssuranceRecord({
     run: {
@@ -195,6 +241,10 @@ function run() {
   testTamperedRedactionCandidateCannotBeApproved();
   testTamperingAfterApprovalCannotBecomeAiVisible();
   testRawPurposeCannotLeakIntoReceipt();
+  testFreeFormReviewerCannotLeakIntoReceipt();
+  testTamperedAiVisibleInputCannotBeSummarized();
+  testTamperedRiskClassificationCannotBeSummarized();
+  testTamperedSafeSummaryCannotEnterReceipt();
   testModelPromptMustDescendFromApprovedInput();
   testMixedRawAndApprovedPromptParentsFail();
   testStringParentArtifactIdsFailValidationWithoutThrowing();
