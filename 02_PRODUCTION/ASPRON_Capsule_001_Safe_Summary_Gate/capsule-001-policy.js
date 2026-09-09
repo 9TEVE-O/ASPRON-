@@ -120,15 +120,40 @@
   function assertCurrentRedactionCandidate(c) {
     assertRules();
     if (fp(c.raw_text) !== c.raw_input_fingerprint) fail("STALE_RAW_INPUT", "Raw input changed after the capsule bound its current input.");
+    if (JSON.stringify(c.risks) !== JSON.stringify(RiskRules.detectRisks(c.raw_text))) {
+      fail("TAMPERED_RISK_CLASSIFICATION", "Risk classification changed after detection.");
+    }
     const expectedCandidate = RiskRules.redact(c.raw_text);
     if (c.redaction_candidate !== expectedCandidate || fp(c.redaction_candidate) !== c.redaction_candidate_fingerprint) {
       fail("TAMPERED_REDACTION_CANDIDATE", "Redaction candidate changed after creation.");
     }
   }
 
+  function assertCurrentAiVisibleInput(c) {
+    assertCurrentRedactionCandidate(c);
+    if (c.ai_visible_input !== c.redaction_candidate) {
+      fail("TAMPERED_AI_VISIBLE_INPUT", "AI-visible input changed after approval.");
+    }
+  }
+
+  function safeSummaryFor(c) {
+    return {
+      summary_type: "approved_redacted_safe_summary",
+      source: "approved_redacted_copy_only",
+      text: "A reviewed redacted intake record is ready for controlled downstream processing. Direct identifiers and restricted instructions remain redacted.",
+      detected_risk_fields: c.risks.map(r => r.field),
+      redaction_token_count: tokenCount(c.ai_visible_input),
+      ai_visible_input_fingerprint: fp(c.ai_visible_input),
+      raw_input_access: "blocked"
+    };
+  }
+
   function approveCandidate(c, reviewer = "demo_reviewer") {
     assertRules(); notDissolved(c); stateIs(c, STATES.REDACTION_CANDIDATE, "INVALID_STATE_FOR_APPROVAL");
     if (!c.redaction_candidate) fail("MISSING_REDACTION_CANDIDATE", "Approval requires redaction.");
+    if (typeof reviewer !== "string" || !/^[A-Za-z0-9_-]{1,64}$/.test(reviewer)) {
+      fail("INVALID_REVIEWER_IDENTIFIER", "Reviewer must be a bounded identifier, not free-form content.");
+    }
     assertCurrentRedactionCandidate(c);
     c.approved = true;
     c.approved_by = reviewer;
@@ -150,15 +175,8 @@
 
   function createSafeSummary(c) {
     notDissolved(c); stateIs(c, STATES.AI_VISIBLE_INPUT_READY, "INVALID_STATE_FOR_SAFE_SUMMARY");
-    c.safe_summary = {
-      summary_type: "approved_redacted_safe_summary",
-      source: "approved_redacted_copy_only",
-      text: "A reviewed redacted intake record is ready for controlled downstream processing. Direct identifiers and restricted instructions remain redacted.",
-      detected_risk_fields: c.risks.map(r => r.field),
-      redaction_token_count: tokenCount(c.ai_visible_input),
-      ai_visible_input_fingerprint: fp(c.ai_visible_input),
-      raw_input_access: "blocked"
-    };
+    assertCurrentAiVisibleInput(c);
+    c.safe_summary = safeSummaryFor(c);
     c.state = STATES.SAFE_SUMMARY_READY;
     audit(c, "safe_summary.created", "summary generated from approved redacted copy only", "good");
     return c;
@@ -166,6 +184,10 @@
 
   function createEvidenceReceipt(c) {
     assertRules(); notDissolved(c); stateIs(c, STATES.SAFE_SUMMARY_READY, "INVALID_STATE_FOR_RECEIPT");
+    assertCurrentAiVisibleInput(c);
+    if (JSON.stringify(c.safe_summary) !== JSON.stringify(safeSummaryFor(c))) {
+      fail("TAMPERED_SAFE_SUMMARY", "Safe summary changed after creation.");
+    }
     const exportedAt = now();
     audit(c, "evidence_receipt.created", "reduced receipt created; raw and full approved payload excluded", "good");
     c.receipt = Object.assign(
